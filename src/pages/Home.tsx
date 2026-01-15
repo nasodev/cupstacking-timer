@@ -1,17 +1,11 @@
 import { useNavigate } from 'react-router-dom';
-import { usePlayers } from '../hooks/useLocalStorage';
 import { INDIVIDUAL_EVENTS, TEAM_EVENTS, EVENT_NAMES } from '../types';
 
 export default function Home() {
   const navigate = useNavigate();
-  const { players } = usePlayers();
 
   const handleEventClick = (eventType: string) => {
-    if (players.length === 0) {
-      navigate('/players');
-    } else {
-      navigate(`/select/${eventType}`);
-    }
+    navigate(`/select/${eventType}`);
   };
 
   return (
