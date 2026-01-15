@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useTimer, formatTime } from '../hooks/useTimer';
 import { usePlayers, useRecords } from '../hooks/useLocalStorage';
@@ -9,6 +9,7 @@ export default function Timer() {
   const { eventType } = useParams<{ eventType: EventType }>();
   const [searchParams] = useSearchParams();
   const playerIds = searchParams.get('players')?.split(',') || [];
+  const touchHandledRef = useRef(false);
 
   const { getPlayer } = usePlayers();
   const { addRecord } = useRecords();
@@ -29,6 +30,22 @@ export default function Timer() {
         navigate(`/result/${eventType}?players=${playerIds.join(',')}&time=${finalTime}`);
       }, 1500);
     }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    e.preventDefault();
+    touchHandledRef.current = true;
+    handleTouch();
+    // 300ms 후 플래그 리셋 (다음 터치를 위해)
+    setTimeout(() => {
+      touchHandledRef.current = false;
+    }, 300);
+  };
+
+  const handleClick = () => {
+    // 터치로 이미 처리됐으면 무시
+    if (touchHandledRef.current) return;
+    handleTouch();
   };
 
   useEffect(() => {
@@ -59,11 +76,8 @@ export default function Timer() {
   return (
     <div
       className={`min-h-full ${bgColor} flex flex-col items-center justify-center no-select transition-colors duration-200`}
-      onClick={handleTouch}
-      onTouchStart={(e) => {
-        e.preventDefault();
-        handleTouch();
-      }}
+      onClick={handleClick}
+      onTouchEnd={handleTouchEnd}
     >
       <div className="text-center pointer-events-none">
         <p className="text-2xl text-gray-700 mb-2">
