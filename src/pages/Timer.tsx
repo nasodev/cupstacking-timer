@@ -123,6 +123,11 @@ export default function Timer() {
               e.stopPropagation();
               handleReset();
             }}
+            onTouchEnd={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              handleReset();
+            }}
             className="py-3 px-5 bg-emerald-500 text-white rounded-xl font-bold"
           >
             다시하기
@@ -132,6 +137,11 @@ export default function Timer() {
               e.stopPropagation();
               handleDeleteRecord();
             }}
+            onTouchEnd={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              handleDeleteRecord();
+            }}
             className="py-3 px-5 bg-red-500 text-white rounded-xl font-bold"
           >
             기록삭제
@@ -139,6 +149,11 @@ export default function Timer() {
           <button
             onClick={(e) => {
               e.stopPropagation();
+              navigate('/');
+            }}
+            onTouchEnd={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
               navigate('/');
             }}
             className="py-3 px-5 bg-gray-500 text-white rounded-xl font-bold"
