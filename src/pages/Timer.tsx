@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useMemo } from 'react';
+import { useEffect, useRef, useCallback, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useTimer, formatTime } from '../hooks/useTimer';
 import { usePlayers, useRecords } from '../hooks/useLocalStorage';
@@ -13,9 +13,10 @@ export default function Timer() {
     return param ? param.split(',').filter(Boolean) : [];
   }, [searchParams]);
   const touchHandledRef = useRef(false);
+  const [savedRecordId, setSavedRecordId] = useState<string | null>(null);
 
   const { getPlayer } = usePlayers();
-  const { addRecord } = useRecords();
+  const { addRecord, deleteRecord } = useRecords();
   const { time, state, toggle, reset } = useTimer();
 
   const playerNames =
@@ -33,12 +34,23 @@ export default function Timer() {
 
     const finalTime = toggle();
     if (finalTime !== null) {
-      addRecord(eventType as EventType, playerIds, finalTime);
-      setTimeout(() => {
-        navigate(`/result/${eventType}?players=${playerIds.join(',')}&time=${finalTime}`);
-      }, 1500);
+      const record = addRecord(eventType as EventType, playerIds, finalTime);
+      setSavedRecordId(record.id);
     }
-  }, [state, time, toggle, addRecord, eventType, playerIds, navigate]);
+  }, [state, time, toggle, addRecord, eventType, playerIds]);
+
+  const handleDeleteRecord = useCallback(() => {
+    if (savedRecordId) {
+      deleteRecord(savedRecordId);
+      setSavedRecordId(null);
+    }
+    reset();
+  }, [savedRecordId, deleteRecord, reset]);
+
+  const handleReset = useCallback(() => {
+    setSavedRecordId(null);
+    reset();
+  }, [reset]);
 
   const handleTouchEnd = useCallback(
     (e: React.TouchEvent) => {
@@ -105,22 +117,31 @@ export default function Timer() {
       </div>
 
       {state === 'stopped' && (
-        <div className="absolute bottom-8 flex gap-4 pointer-events-auto">
+        <div className="absolute bottom-8 flex flex-wrap justify-center gap-3 pointer-events-auto px-4">
           <button
             onClick={(e) => {
               e.stopPropagation();
-              reset();
+              handleReset();
             }}
-            className="py-3 px-6 bg-emerald-500 text-white rounded-xl font-bold"
+            className="py-3 px-5 bg-emerald-500 text-white rounded-xl font-bold"
           >
             다시하기
           </button>
           <button
             onClick={(e) => {
               e.stopPropagation();
+              handleDeleteRecord();
+            }}
+            className="py-3 px-5 bg-red-500 text-white rounded-xl font-bold"
+          >
+            기록삭제
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
               navigate('/');
             }}
-            className="py-3 px-6 bg-gray-500 text-white rounded-xl font-bold"
+            className="py-3 px-5 bg-gray-500 text-white rounded-xl font-bold"
           >
             메인으로
           </button>

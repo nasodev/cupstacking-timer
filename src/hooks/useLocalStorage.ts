@@ -96,5 +96,9 @@ export function useRecords() {
     []
   );
 
-  return { records, addRecord, getRecordsByEvent, getBestRecord, clearRecords, clearRecordsByEvent };
+  const deleteRecord = useCallback((id: string) => {
+    setRecords((prev) => prev.filter((r) => r.id !== id));
+  }, []);
+
+  return { records, addRecord, getRecordsByEvent, getBestRecord, clearRecords, clearRecordsByEvent, deleteRecord };
 }
