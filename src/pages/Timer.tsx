@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useTimer, formatTime } from '../hooks/useTimer';
 import { usePlayers, useRecords } from '../hooks/useLocalStorage';
@@ -8,7 +8,10 @@ export default function Timer() {
   const navigate = useNavigate();
   const { eventType } = useParams<{ eventType: EventType }>();
   const [searchParams] = useSearchParams();
-  const playerIds = searchParams.get('players')?.split(',') || [];
+  const playerIds = useMemo(
+    () => searchParams.get('players')?.split(',') || [],
+    [searchParams]
+  );
   const touchHandledRef = useRef(false);
 
   const { getPlayer } = usePlayers();
@@ -20,7 +23,7 @@ export default function Timer() {
     .filter(Boolean)
     .join(', ');
 
-  const handleTouch = () => {
+  const handleTouch = useCallback(() => {
     if (state === 'stopped') return;
 
     const finalTime = toggle();
@@ -30,23 +33,24 @@ export default function Timer() {
         navigate(`/result/${eventType}?players=${playerIds.join(',')}&time=${finalTime}`);
       }, 1500);
     }
-  };
+  }, [state, toggle, addRecord, eventType, playerIds, navigate]);
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    e.preventDefault();
-    touchHandledRef.current = true;
-    handleTouch();
-    // 300ms 후 플래그 리셋 (다음 터치를 위해)
-    setTimeout(() => {
-      touchHandledRef.current = false;
-    }, 300);
-  };
+  const handleTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      e.preventDefault();
+      touchHandledRef.current = true;
+      handleTouch();
+      setTimeout(() => {
+        touchHandledRef.current = false;
+      }, 300);
+    },
+    [handleTouch]
+  );
 
-  const handleClick = () => {
-    // 터치로 이미 처리됐으면 무시
+  const handleClick = useCallback(() => {
     if (touchHandledRef.current) return;
     handleTouch();
-  };
+  }, [handleTouch]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -57,7 +61,7 @@ export default function Timer() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [state]);
+  }, [handleTouch]);
 
   const bgColor =
     state === 'idle'

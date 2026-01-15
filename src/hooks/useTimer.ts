@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 
 export type TimerState = 'idle' | 'running' | 'stopped';
 
@@ -8,17 +8,26 @@ export function useTimer() {
   const startTimeRef = useRef<number>(0);
   const rafRef = useRef<number>(0);
 
-  const updateTime = useCallback(() => {
-    const elapsed = Date.now() - startTimeRef.current;
-    setTime(elapsed);
+  useEffect(() => {
+    if (state !== 'running') return;
+
+    const updateTime = () => {
+      const elapsed = Date.now() - startTimeRef.current;
+      setTime(elapsed);
+      rafRef.current = requestAnimationFrame(updateTime);
+    };
+
     rafRef.current = requestAnimationFrame(updateTime);
-  }, []);
+
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+    };
+  }, [state]);
 
   const start = useCallback(() => {
     startTimeRef.current = Date.now();
     setState('running');
-    rafRef.current = requestAnimationFrame(updateTime);
-  }, [updateTime]);
+  }, []);
 
   const stop = useCallback(() => {
     cancelAnimationFrame(rafRef.current);

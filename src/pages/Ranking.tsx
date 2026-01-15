@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePlayers, useRecords } from '../hooks/useLocalStorage';
 import { formatTime } from '../hooks/useTimer';
@@ -12,35 +12,41 @@ interface RankingEntry {
 
 export default function Ranking() {
   const navigate = useNavigate();
-  const { players, getPlayer } = usePlayers();
+  const { getPlayer } = usePlayers();
   const { records } = useRecords();
 
-  const getPlayerNames = (ids: string[]) =>
-    ids
-      .map((id) => getPlayer(id)?.name)
-      .filter(Boolean)
-      .join(', ');
+  const getPlayerNames = useCallback(
+    (ids: string[]) =>
+      ids
+        .map((id) => getPlayer(id)?.name)
+        .filter(Boolean)
+        .join(', '),
+    [getPlayer]
+  );
 
-  const getBestByEvent = (eventType: EventType): RankingEntry[] => {
-    const eventRecords = records.filter((r) => r.eventType === eventType);
-    const bestByPlayer: Map<string, TimeRecord> = new Map();
+  const getBestByEvent = useCallback(
+    (eventType: EventType): RankingEntry[] => {
+      const eventRecords = records.filter((r) => r.eventType === eventType);
+      const bestByPlayer: Map<string, TimeRecord> = new Map();
 
-    eventRecords.forEach((record) => {
-      const key = [...record.playerIds].sort().join(',');
-      const existing = bestByPlayer.get(key);
-      if (!existing || record.time < existing.time) {
-        bestByPlayer.set(key, record);
-      }
-    });
+      eventRecords.forEach((record) => {
+        const key = [...record.playerIds].sort().join(',');
+        const existing = bestByPlayer.get(key);
+        if (!existing || record.time < existing.time) {
+          bestByPlayer.set(key, record);
+        }
+      });
 
-    return Array.from(bestByPlayer.values())
-      .map((r) => ({
-        playerIds: r.playerIds,
-        playerNames: getPlayerNames(r.playerIds),
-        time: r.time,
-      }))
-      .sort((a, b) => a.time - b.time);
-  };
+      return Array.from(bestByPlayer.values())
+        .map((r) => ({
+          playerIds: r.playerIds,
+          playerNames: getPlayerNames(r.playerIds),
+          time: r.time,
+        }))
+        .sort((a, b) => a.time - b.time);
+    },
+    [records, getPlayerNames]
+  );
 
   const firstPlaceCount = useMemo(() => {
     const counts: Map<string, number> = new Map();
@@ -56,7 +62,7 @@ export default function Ranking() {
     });
 
     return counts;
-  }, [records, players]);
+  }, [getBestByEvent]);
 
   const overallRanking = useMemo(() => {
     return Array.from(firstPlaceCount.entries())
