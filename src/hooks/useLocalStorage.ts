@@ -89,5 +89,12 @@ export function useRecords() {
     setRecords([]);
   }, []);
 
-  return { records, addRecord, getRecordsByEvent, getBestRecord, clearRecords };
+  const clearRecordsByEvent = useCallback(
+    (eventType: TimeRecord['eventType']) => {
+      setRecords((prev) => prev.filter((r) => r.eventType !== eventType));
+    },
+    []
+  );
+
+  return { records, addRecord, getRecordsByEvent, getBestRecord, clearRecords, clearRecordsByEvent };
 }

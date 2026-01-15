@@ -13,12 +13,16 @@ interface RankingEntry {
 export default function Ranking() {
   const navigate = useNavigate();
   const { getPlayer } = usePlayers();
-  const { records, clearRecords } = useRecords();
-  const [showConfirm, setShowConfirm] = useState(false);
+  const { records, clearRecords, clearRecordsByEvent } = useRecords();
+  const [confirmEvent, setConfirmEvent] = useState<EventType | 'all' | null>(null);
 
   const handleClearRecords = () => {
-    clearRecords();
-    setShowConfirm(false);
+    if (confirmEvent === 'all') {
+      clearRecords();
+    } else if (confirmEvent) {
+      clearRecordsByEvent(confirmEvent);
+    }
+    setConfirmEvent(null);
   };
 
   const getPlayerNames = useCallback(
@@ -139,9 +143,19 @@ export default function Ranking() {
           const rankings = getBestByEvent(event);
           return (
             <section key={event} className="mb-6">
-              <h2 className="text-lg font-semibold text-gray-600 mb-3">
-                {EVENT_NAMES[event]}
-              </h2>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-lg font-semibold text-gray-600">
+                  {EVENT_NAMES[event]}
+                </h2>
+                {rankings.length > 0 && (
+                  <button
+                    onClick={() => setConfirmEvent(event)}
+                    className="text-sm text-red-500"
+                  >
+                    초기화
+                  </button>
+                )}
+              </div>
               {rankings.length === 0 ? (
                 <p className="text-gray-400 text-sm">기록 없음</p>
               ) : (
@@ -176,29 +190,31 @@ export default function Ranking() {
           );
         })}
 
-        {/* Reset Button */}
+        {/* Reset All Button */}
         <div className="mt-8 pt-4 border-t border-gray-200">
           <button
-            onClick={() => setShowConfirm(true)}
+            onClick={() => setConfirmEvent('all')}
             className="w-full py-3 bg-red-500 text-white rounded-xl font-medium"
           >
-            순위 초기화
+            전체 초기화
           </button>
         </div>
 
         {/* Confirm Dialog */}
-        {showConfirm && (
+        {confirmEvent && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-xl p-6 max-w-sm w-full">
               <h3 className="text-lg font-bold text-gray-800 mb-2">
-                순위 초기화
+                {confirmEvent === 'all' ? '전체 초기화' : `${EVENT_NAMES[confirmEvent]} 초기화`}
               </h3>
               <p className="text-gray-600 mb-6">
-                모든 기록이 삭제됩니다. 계속하시겠습니까?
+                {confirmEvent === 'all'
+                  ? '모든 기록이 삭제됩니다. 계속하시겠습니까?'
+                  : `${EVENT_NAMES[confirmEvent]} 기록이 삭제됩니다. 계속하시겠습니까?`}
               </p>
               <div className="flex gap-3">
                 <button
-                  onClick={() => setShowConfirm(false)}
+                  onClick={() => setConfirmEvent(null)}
                   className="flex-1 py-3 bg-gray-300 text-gray-700 rounded-xl font-medium"
                 >
                   취소
