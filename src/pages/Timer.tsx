@@ -28,6 +28,8 @@ export default function Timer() {
 
   const handleTouch = useCallback(() => {
     if (state === 'stopped') return;
+    // Prevent accidental stop within 1 second
+    if (state === 'running' && time < 1000) return;
 
     const finalTime = toggle();
     if (finalTime !== null) {
@@ -36,7 +38,7 @@ export default function Timer() {
         navigate(`/result/${eventType}?players=${playerIds.join(',')}&time=${finalTime}`);
       }, 1500);
     }
-  }, [state, toggle, addRecord, eventType, playerIds, navigate]);
+  }, [state, time, toggle, addRecord, eventType, playerIds, navigate]);
 
   const handleTouchEnd = useCallback(
     (e: React.TouchEvent) => {

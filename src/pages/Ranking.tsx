@@ -1,4 +1,4 @@
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePlayers, useRecords } from '../hooks/useLocalStorage';
 import { formatTime } from '../hooks/useTimer';
@@ -13,7 +13,13 @@ interface RankingEntry {
 export default function Ranking() {
   const navigate = useNavigate();
   const { getPlayer } = usePlayers();
-  const { records } = useRecords();
+  const { records, clearRecords } = useRecords();
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const handleClearRecords = () => {
+    clearRecords();
+    setShowConfirm(false);
+  };
 
   const getPlayerNames = useCallback(
     (ids: string[]) =>
@@ -169,6 +175,44 @@ export default function Ranking() {
             </section>
           );
         })}
+
+        {/* Reset Button */}
+        <div className="mt-8 pt-4 border-t border-gray-200">
+          <button
+            onClick={() => setShowConfirm(true)}
+            className="w-full py-3 bg-red-500 text-white rounded-xl font-medium"
+          >
+            순위 초기화
+          </button>
+        </div>
+
+        {/* Confirm Dialog */}
+        {showConfirm && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl p-6 max-w-sm w-full">
+              <h3 className="text-lg font-bold text-gray-800 mb-2">
+                순위 초기화
+              </h3>
+              <p className="text-gray-600 mb-6">
+                모든 기록이 삭제됩니다. 계속하시겠습니까?
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowConfirm(false)}
+                  className="flex-1 py-3 bg-gray-300 text-gray-700 rounded-xl font-medium"
+                >
+                  취소
+                </button>
+                <button
+                  onClick={handleClearRecords}
+                  className="flex-1 py-3 bg-red-500 text-white rounded-xl font-medium"
+                >
+                  삭제
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
