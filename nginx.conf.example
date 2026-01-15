@@ -1,0 +1,27 @@
+# cupstacking.funq.kr nginx 설정
+# 서버에서 /etc/nginx/sites-available/cupstacking.conf 로 저장 후
+# sudo ln -s /etc/nginx/sites-available/cupstacking.conf /etc/nginx/sites-enabled/
+# sudo nginx -t && sudo systemctl reload nginx
+
+server {
+    listen 80;
+    server_name cupstacking.funq.kr;
+
+    root /home/funq/dev/cupstacking-timer/dist;
+    index index.html;
+
+    # SPA routing - 모든 경로를 index.html로
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # 정적 파일 캐싱
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # gzip 압축
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+}
