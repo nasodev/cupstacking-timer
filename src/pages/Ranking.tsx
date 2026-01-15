@@ -26,7 +26,10 @@ export default function Ranking() {
 
   const getBestByEvent = useCallback(
     (eventType: EventType): RankingEntry[] => {
-      const eventRecords = records.filter((r) => r.eventType === eventType);
+      // Filter out guest records (empty playerIds)
+      const eventRecords = records.filter(
+        (r) => r.eventType === eventType && r.playerIds.length > 0
+      );
       const bestByPlayer: Map<string, TimeRecord> = new Map();
 
       eventRecords.forEach((record) => {

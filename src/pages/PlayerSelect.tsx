@@ -29,6 +29,10 @@ export default function PlayerSelect() {
     }
   };
 
+  const handleGuestStart = () => {
+    navigate(`/timer/${eventType}?players=`);
+  };
+
   const canStart = selectedIds.length >= minPlayers;
 
   return (
@@ -53,12 +57,23 @@ export default function PlayerSelect() {
         {players.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-gray-500 mb-4">등록된 선수가 없습니다</p>
-            <button
-              onClick={() => navigate('/players')}
-              className="py-2 px-4 bg-emerald-500 text-white rounded-lg"
-            >
-              선수 등록하기
-            </button>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => navigate('/players')}
+                className="py-2 px-4 bg-emerald-500 text-white rounded-lg"
+              >
+                선수 등록하기
+              </button>
+              <button
+                onClick={handleGuestStart}
+                className="py-2 px-4 bg-gray-400 text-white rounded-lg"
+              >
+                게스트로 시작
+              </button>
+            </div>
+            <p className="text-gray-400 text-sm mt-2">
+              게스트 기록은 순위에 포함되지 않습니다
+            </p>
           </div>
         ) : (
           <>
@@ -92,6 +107,18 @@ export default function PlayerSelect() {
             >
               시작하기
             </button>
+
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <button
+                onClick={handleGuestStart}
+                className="w-full py-3 bg-gray-400 text-white rounded-xl font-medium"
+              >
+                게스트로 시작
+              </button>
+              <p className="text-gray-400 text-sm text-center mt-2">
+                게스트 기록은 순위에 포함되지 않습니다
+              </p>
+            </div>
           </>
         )}
       </div>

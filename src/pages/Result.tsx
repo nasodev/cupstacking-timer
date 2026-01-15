@@ -7,19 +7,23 @@ export default function Result() {
   const navigate = useNavigate();
   const { eventType } = useParams<{ eventType: EventType }>();
   const [searchParams] = useSearchParams();
-  const playerIds = searchParams.get('players')?.split(',') || [];
+  const playerIdsParam = searchParams.get('players');
+  const playerIds = playerIdsParam ? playerIdsParam.split(',').filter(Boolean) : [];
   const time = parseInt(searchParams.get('time') || '0', 10);
+  const isGuest = playerIds.length === 0;
 
   const { getPlayer } = usePlayers();
   const { getBestRecord } = useRecords();
 
-  const playerNames = playerIds
-    .map((id) => getPlayer(id)?.name)
-    .filter(Boolean)
-    .join(', ');
+  const playerNames = isGuest
+    ? '게스트'
+    : playerIds
+        .map((id) => getPlayer(id)?.name)
+        .filter(Boolean)
+        .join(', ');
 
-  const bestRecord = getBestRecord(eventType as EventType, playerIds);
-  const isNewBest = bestRecord?.time === time;
+  const bestRecord = isGuest ? undefined : getBestRecord(eventType as EventType, playerIds);
+  const isNewBest = !isGuest && bestRecord?.time === time;
 
   return (
     <div className="min-h-full bg-amber-50 flex flex-col items-center justify-center p-4">

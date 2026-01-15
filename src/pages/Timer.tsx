@@ -8,20 +8,23 @@ export default function Timer() {
   const navigate = useNavigate();
   const { eventType } = useParams<{ eventType: EventType }>();
   const [searchParams] = useSearchParams();
-  const playerIds = useMemo(
-    () => searchParams.get('players')?.split(',') || [],
-    [searchParams]
-  );
+  const playerIds = useMemo(() => {
+    const param = searchParams.get('players');
+    return param ? param.split(',').filter(Boolean) : [];
+  }, [searchParams]);
   const touchHandledRef = useRef(false);
 
   const { getPlayer } = usePlayers();
   const { addRecord } = useRecords();
   const { time, state, toggle, reset } = useTimer();
 
-  const playerNames = playerIds
-    .map((id) => getPlayer(id)?.name)
-    .filter(Boolean)
-    .join(', ');
+  const playerNames =
+    playerIds.length > 0
+      ? playerIds
+          .map((id) => getPlayer(id)?.name)
+          .filter(Boolean)
+          .join(', ')
+      : '게스트';
 
   const handleTouch = useCallback(() => {
     if (state === 'stopped') return;
