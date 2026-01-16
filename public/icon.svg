@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="64" fill="#10b981"/>
+
+  <!-- Cup stack (3-6-3 formation) -->
+  <!-- Top row: 3 cups -->
+  <polygon points="196,120 316,120 296,200 216,200" fill="white" opacity="0.95"/>
+  <polygon points="116,120 236,120 216,200 136,200" fill="white" opacity="0.9"/>
+  <polygon points="276,120 396,120 376,200 296,200" fill="white" opacity="0.9"/>
+
+  <!-- Middle row: 6 cups (showing 4 visible) -->
+  <polygon points="76,220 196,220 176,300 96,300" fill="white" opacity="0.85"/>
+  <polygon points="156,220 276,220 256,300 176,300" fill="white" opacity="0.9"/>
+  <polygon points="236,220 356,220 336,300 256,300" fill="white" opacity="0.9"/>
+  <polygon points="316,220 436,220 416,300 336,300" fill="white" opacity="0.85"/>
+
+  <!-- Bottom row: 3 cups -->
+  <polygon points="116,320 236,320 216,400 136,400" fill="white" opacity="0.9"/>
+  <polygon points="196,320 316,320 296,400 216,400" fill="white" opacity="0.95"/>
+  <polygon points="276,320 396,320 376,400 296,400" fill="white" opacity="0.9"/>
+</svg>
