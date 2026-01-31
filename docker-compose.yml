@@ -1,7 +1,11 @@
+name: funq-cupstacking-timer
+
 services:
   cupstacking-timer:
     build: .
-    container_name: cupstacking-timer
     ports:
       - "23002:80"
+    labels:
+      - "com.funq.project=true"
+      - "com.funq.name=cupstacking-timer"
     restart: unless-stopped
